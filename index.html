@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareBear 🐻 - AI Companion</title>
+    <title>CareBear 🐻 - AI 말벗 로봇</title>
     <style>
         /* Reset CSS */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
             font-size: 16px;
             line-height: 1.5;
             color: #333;
-            background-color: #f9f9f9;
+            background-color: #f5f7fa;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -25,22 +21,66 @@
 
         /* Container */
         .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 25px;
             background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         /* Header */
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            color: #2d9cdb;
+            color: #4e89ae;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+
+        /* API Key Input */
+        #api-key-input {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        #api-key-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        #api-key-input input {
+            width: 100%;
+            max-width: 350px;
+            padding: 12px 16px;
+            border: 1px solid #ced4da;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        #api-key-input input:focus {
+            outline: none;
+            border-color: #4e89ae;
+            box-shadow: 0 0 6px rgba(78, 137, 174, 0.3);
+        }
+
+        #api-key-input button {
+            padding: 12px 24px;
+            background-color: #4e89ae;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #api-key-input button:hover {
+            background-color: #3b7197;
         }
 
         /* Chat Area */
@@ -51,23 +91,13 @@
             margin-bottom: 20px;
             height: 400px;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #a8a8a8 #f0f0f0;
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #a8a8a8 #f0f0f0; /* Firefox */
         }
-
-        #chat-area::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #chat-area::-webkit-scrollbar-track {
-            background: #f0f0f0;
-            border-radius: 4px;
-        }
-
-        #chat-area::-webkit-scrollbar-thumb {
-            background-color: #a8a8a8;
-            border-radius: 4px;
-        }
+        /* Chrome, Safari */
+        #chat-area::-webkit-scrollbar { width: 8px; }
+        #chat-area::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 4px; }
+        #chat-area::-webkit-scrollbar-thumb { background-color: #a8a8a8; border-radius: 4px; }
 
         /* Message */
         .message {
@@ -84,6 +114,7 @@
             color: #388e3c;
             float: left;
             border-bottom-left-radius: 4px;
+            position: relative; /* For emotion icon */
         }
 
         .user-message {
@@ -91,6 +122,15 @@
             color: #1e88e5;
             float: right;
             border-bottom-right-radius: 4px;
+        }
+        /* Status and Emotion */
+        .status-icon, .emotion-icon {
+            position: absolute;
+            bottom: -8px;
+            font-size: 1.2em;
+        }
+        .bot-message .emotion-icon {
+            left: -8px;
         }
 
         /* Input Area */
@@ -103,93 +143,169 @@
         .input-area input {
             flex-grow: 1;
             padding: 12px 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 10px;
             font-size: 1rem;
             transition: border-color 0.3s ease;
         }
 
         .input-area input:focus {
             outline: none;
-            border-color: #2d9cdb;
-            box-shadow: 0 0 6px rgba(45, 156, 219, 0.3);
+            border-color: #4e89ae;
+            box-shadow: 0 0 6px rgba(78, 137, 174, 0.3);
         }
 
         .input-area button {
             padding: 12px 24px;
-            background-color: #2d9cdb;
+            background-color: #4e89ae;
             color: #fff;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
         .input-area button:hover {
-            background-color: #277da1;
+            background-color: #3b7197;
         }
 
-        /* Responsive Design */
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .container {
-                width: 90%;
-                padding: 20px;
+                margin: 20px;
+                padding: 15px;
+                border-radius: 15px;
             }
 
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
                 margin-bottom: 20px;
+            }
+
+            #api-key-input input {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            #api-key-input button{
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+
+            #chat-area {
+                height: 300px;
+                padding: 15px;
+            }
+
+            .message {
+                padding: 10px 14px;
+                border-radius: 14px;
+                margin-bottom: 8px;
             }
 
             .input-area {
                 flex-direction: column;
-                align-items: stretch;
             }
 
             .input-area input {
                 margin-bottom: 10px;
+                padding: 10px 14px;
+                font-size: 0.9rem;
             }
+            .input-area button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+
         }
 
         /* Accessibility */
         button:focus,
         input:focus {
-            outline: 2px solid #2d9cdb;
+            outline: 2px solid #4e89ae;
             outline-offset: 2px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>CareBear 🐻 - AI Companion</h1>
+        <h1>CareBear 🐻 - AI 말벗 로봇</h1>
+
+        <div id="api-key-input">
+            <label for="api-key">OpenAI API 키를 입력해주세요:</label>
+            <input type="password" id="api-key" placeholder="API 키를 입력하세요">
+            <button id="api-key-save-btn">저장</button>
+        </div>
+
         <div id="chat-area">
-            <div class="message bot-message">Hello! I'm CareBear 🐻. How can I help you today? 😊</div>
+            <div class="message bot-message">
+                안녕하세요! 저는 CareBear 🐻예요. 무엇을 도와드릴까요? 😊
+                <span class="emotion-icon">😊</span>
+            </div>
+
         </div>
         <div class="input-area">
-            <button id="start-btn">🎤 Speak</button>
-            <input type="text" id="user-input" placeholder="Type here or press 'Speak'">
-            <button id="send-btn">Send 🚀</button>
+            <button id="start-btn">🎤 말하기</button>
+            <input type="text" id="user-input" placeholder="여기에 입력하거나 '말하기' 버튼을 누르세요.">
+            <button id="send-btn">전송 🚀</button>
         </div>
     </div>
 
     <script>
-        // JavaScript Code
-        document.addEventListener('DOMContentLoaded', function() {
+       document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const apiKeyInput = document.getElementById('api-key');
+            const apiKeySaveBtn = document.getElementById('api-key-save-btn');
             const chatArea = document.getElementById('chat-area');
             const userInput = document.getElementById('user-input');
             const sendBtn = document.getElementById('send-btn');
             const startBtn = document.getElementById('start-btn');
 
-            // OpenAI API Key (Replace with your actual API key)
-            const apiKey = 'YOUR_OPENAI_API_KEY'; // TODO: Replace with your actual API key
+            // Load API key
+            let apiKey = localStorage.getItem('openaiApiKey') || '';
+            apiKeyInput.value = apiKey;
 
-            // Function to generate chatbot response
-            async function getChatbotResponse(message) {
-                if (!apiKey) {
-                    alert('Please set your OpenAI API Key first.');
-                    return "I can't respond without an API Key!";
+            // Save API Key
+            apiKeySaveBtn.addEventListener('click', function() {
+                apiKey = apiKeyInput.value;
+                localStorage.setItem('openaiApiKey', apiKey);
+                alert('API 키가 저장되었습니다.');
+            });
+
+            // Function to add message to chat
+            function addMessage(message, isUser, emotion = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+                let messageText = message;
+                if (!isUser && emotion) {
+                    messageText += ` <span class="emotion-icon">${emotion}</span>`;
                 }
+                messageDiv.innerHTML = messageText; // Use innerHTML to render emotion icon
+                chatArea.appendChild(messageDiv);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+
+            // Function for Text-to-Speech
+            function speak(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'ko-KR'; // Korean
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    alert('브라우저가 음성 합성을 지원하지 않습니다.');
+                }
+            }
+
+
+            // Function to get chatbot response from OpenAI API
+            async function getChatbotResponse(userMessage) {
+                if (!apiKey) {
+                    alert('API 키를 먼저 입력해주세요.');
+                    return "API 키가 없어서 응답할 수 없어요. 😔";
+                }
+
+                const prompt = `다음 대화에 대한 응답을 작성하세요. 응답 내용과 함께 현재 느끼는 감정을 이모지로 표현해주세요. 사용자의 메시지: ${userMessage}`;
 
                 try {
                     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -200,53 +316,62 @@
                         },
                         body: JSON.stringify({
                             model: "gpt-3.5-turbo",
-                            messages: [{role: "user", content: message}],
+                            messages: [
+                                {role: "system", content: "당신은 독거 노인을 위한 친절한 AI 챗봇입니다."},
+                                {role: "user", content: prompt}
+                            ],
                             max_tokens: 150
                         })
                     });
 
                     const data = await response.json();
+                    //console.log(data); // Debugging
                     if (data.choices && data.choices.length > 0) {
-                        return data.choices[0].message.content;
+                        const message = data.choices[0].message.content;
+
+                         // 간단한 감정 추출 로직 (실제 감정 인식 알고리즘으로 대체 필요)
+                        let emotion = '🙂'; // 기본 감정
+                        if (message.includes('기뻐')) {
+                            emotion = '😄';
+                        } else if (message.includes('슬퍼') || message.includes('우울')) {
+                            emotion = '😢';
+                        } else if (message.includes('화가')) {
+                            emotion = '😠';
+                        } else if (message.includes('놀라')) {
+                            emotion = '😲';
+                        }
+
+                        return {message, emotion};
+
                     } else {
-                        return "I'm having trouble understanding. Could you please rephrase?";
+                        return { message: "죄송해요, 무슨 말인지 잘 모르겠어요. 😔", emotion: "😔" };
                     }
                 } catch (error) {
-                    console.error("Error fetching OpenAI:", error);
-                    return "I'm sorry, I encountered an error. Please try again later.";
+                    console.error("OpenAI API 호출 오류:", error);
+                    return { message: "죄송해요, 지금은 응답할 수 없어요. 나중에 다시 시도해주세요. 😔", emotion : "😔" };
                 }
             }
 
-            // Function to add message to chat area
-            function addMessage(message, isUser) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message');
-                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
-                messageDiv.textContent = message;
-                chatArea.appendChild(messageDiv);
-                chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
-            }
-
-            // Send message
+            // Send button click event
             sendBtn.addEventListener('click', async function() {
                 const message = userInput.value.trim();
                 if (message) {
-                    addMessage(message, true); // Add user message
+                    addMessage(message, true);
+                    userInput.value = '';
 
-                    userInput.value = ''; // Clear input
-
-                    const response = await getChatbotResponse(message); // Get response from chatbot
-                    addMessage(response, false); // Add chatbot message
+                    const {message: botResponse, emotion} = await getChatbotResponse(message);
+                    addMessage(botResponse, false, emotion); // Pass emotion
+                    speak(botResponse); // Speak the response
                 }
             });
 
-            // Speech Recognition (Web Speech API)
+            // Speech Recognition
             if ('webkitSpeechRecognition' in window) {
                 const recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.lang = 'ko-KR'; // Set language to Korean
-                recognition.interimResults = false; // Get final results only
-                recognition.maxAlternatives = 1; // Get only the best match
+                recognition.continuous = false; // Stop after first result
+                recognition.lang = 'ko-KR';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
 
                 startBtn.addEventListener('click', function() {
                     recognition.start();
@@ -255,22 +380,20 @@
                 recognition.onresult = function(event) {
                     const transcript = event.results[0][0].transcript;
                     userInput.value = transcript;
-                }
+                    sendBtn.click(); // Automatically send
+                };
 
                 recognition.onerror = function(event) {
-                    console.error("Speech recognition error:", event.error);
-                    alert('Speech recognition error. Please try again.');
-                }
-
-                recognition.onend = function() {
-                    console.log("Speech recognition ended.");
-                }
+                    console.error("음성 인식 오류:", event.error);
+                    alert('음성 인식 오류가 발생했습니다. 다시 시도해주세요.');
+                };
             } else {
                 startBtn.disabled = true;
-                startBtn.textContent = 'Speech not supported';
-                alert('Your browser does not support speech recognition.');
+                startBtn.textContent = '🎤 지원 안함';
+                alert('브라우저가 음성 인식을 지원하지 않습니다.');
             }
         });
+
     </script>
 </body>
 </html>
