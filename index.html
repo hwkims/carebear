@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareBear 🐻 - AI Companion</title>
+    <style>
+        /* Reset CSS */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f9f9f9;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        /* Header */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d9cdb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Chat Area */
+        #chat-area {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #a8a8a8 #f0f0f0;
+        }
+
+        #chat-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-area::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        #chat-area::-webkit-scrollbar-thumb {
+            background-color: #a8a8a8;
+            border-radius: 4px;
+        }
+
+        /* Message */
+        .message {
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            clear: both;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background-color: #e8f5e9;
+            color: #388e3c;
+            float: left;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background-color: #e3f2fd;
+            color: #1e88e5;
+            float: right;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex-grow: 1;
+            padding: 12px 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-area input:focus {
+            outline: none;
+            border-color: #2d9cdb;
+            box-shadow: 0 0 6px rgba(45, 156, 219, 0.3);
+        }
+
+        .input-area button {
+            padding: 12px 24px;
+            background-color: #2d9cdb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .input-area button:hover {
+            background-color: #277da1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 20px;
+            }
+
+            .input-area {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .input-area input {
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Accessibility */
+        button:focus,
+        input:focus {
+            outline: 2px solid #2d9cdb;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CareBear 🐻 - AI Companion</h1>
+        <div id="chat-area">
+            <div class="message bot-message">Hello! I'm CareBear 🐻. How can I help you today? 😊</div>
+        </div>
+        <div class="input-area">
+            <button id="start-btn">🎤 Speak</button>
+            <input type="text" id="user-input" placeholder="Type here or press 'Speak'">
+            <button id="send-btn">Send 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Code
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatArea = document.getElementById('chat-area');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const startBtn = document.getElementById('start-btn');
+
+            // OpenAI API Key (Replace with your actual API key)
+            const apiKey = 'YOUR_OPENAI_API_KEY'; // TODO: Replace with your actual API key
+
+            // Function to generate chatbot response
+            async function getChatbotResponse(message) {
+                if (!apiKey) {
+                    alert('Please set your OpenAI API Key first.');
+                    return "I can't respond without an API Key!";
+                }
+
+                try {
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: "gpt-3.5-turbo",
+                            messages: [{role: "user", content: message}],
+                            max_tokens: 150
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.choices && data.choices.length > 0) {
+                        return data.choices[0].message.content;
+                    } else {
+                        return "I'm having trouble understanding. Could you please rephrase?";
+                    }
+                } catch (error) {
+                    console.error("Error fetching OpenAI:", error);
+                    return "I'm sorry, I encountered an error. Please try again later.";
+                }
+            }
+
+            // Function to add message to chat area
+            function addMessage(message, isUser) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+                messageDiv.textContent = message;
+                chatArea.appendChild(messageDiv);
+                chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
+            }
+
+            // Send message
+            sendBtn.addEventListener('click', async function() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage(message, true); // Add user message
+
+                    userInput.value = ''; // Clear input
+
+                    const response = await getChatbotResponse(message); // Get response from chatbot
+                    addMessage(response, false); // Add chatbot message
+                }
+            });
+
+            // Speech Recognition (Web Speech API)
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'ko-KR'; // Set language to Korean
+                recognition.interimResults = false; // Get final results only
+                recognition.maxAlternatives = 1; // Get only the best match
+
+                startBtn.addEventListener('click', function() {
+                    recognition.start();
+                });
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    userInput.value = transcript;
+                }
+
+                recognition.onerror = function(event) {
+                    console.error("Speech recognition error:", event.error);
+                    alert('Speech recognition error. Please try again.');
+                }
+
+                recognition.onend = function() {
+                    console.log("Speech recognition ended.");
+                }
+            } else {
+                startBtn.disabled = true;
+                startBtn.textContent = 'Speech not supported';
+                alert('Your browser does not support speech recognition.');
+            }
+        });
+    </script>
+</body>
+</html>
